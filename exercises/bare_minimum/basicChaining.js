@@ -10,11 +10,19 @@
 
 var fs = require('fs');
 var Promise = require('bluebird');
+var pluckFirstLine = require('./promiseConstructor').pluckFirstLineFromFileAsync;
+var getProfile = require('./promisification').getGitHubProfileAsync;
+var asyncWrite = Promise.promisify(fs.writeFile);
 
 
-
-var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
-  // TODO
+var fetchProfileAndWriteToFile = (readFilePath, writeFilePath) => {
+  return pluckFirstLine(readFilePath)
+    .then((username) => {
+      return getProfile(username);
+    })
+    .then((profile) => {
+      return asyncWrite(writeFilePath, JSON.stringify(profile));
+    });
 };
 
 // Export these functions so we can test them
